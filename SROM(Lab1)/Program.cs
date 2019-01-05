@@ -7,19 +7,6 @@ using System.Threading.Tasks;
 namespace SROMLab1 {
     public class Program {
         static void Main(string[] args) {
-            string a = "CE14CE6CE8ABB9CF69E34F839FF643C175B36E9443A58454A069D05FFE67ADD";
-            string b = "3B9FFA83DB3AA0BC929D8AA2E72297EE3D6F93EEF3794134EF322E71431B0C88";
-            string n = "18B44D8D06EE4E5D2254687FF927BB1D464CC8509B6E7498353B2BDE38A1AA4F";
-            a = CorrLength(a);
-            b = CorrLength(b);
-            var a_32 = new ulong[a.Length / 8];
-            var b_32 = new ulong[b.Length / 8];
-            a_32 = ToArr(a, a_32);
-            b_32 = ToArr(b, b_32);
-
-            Console.WriteLine(ModPower(a, b, n));
-
-            Console.ReadKey();
         }
 
         public static string Add(string a, string b) {

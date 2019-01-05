@@ -7,19 +7,6 @@ using System.Threading.Tasks;
 namespace SROMLab1 {
     public class Program {
         static void Main(string[] args) {
-            string a = "CE14CE6CE8ABB9CF69E34F839FF643C175B36E9443A58454A069D05FFE67ADD";
-            string b = "3B9FFA83DB3AA0BC929D8AA2E72297EE3D6F93EEF3794134EF322E71431B0C88";
-            string n = "18B44D8D06EE4E5D2254687FF927BB1D464CC8509B6E7498353B2BDE38A1AA4F";
-            a = CorrLength(a);
-            b = CorrLength(b);
-            var a_32 = new ulong[a.Length / 8];
-            var b_32 = new ulong[b.Length / 8];
-            a_32 = ToArr(a, a_32);
-            b_32 = ToArr(b, b_32);
-
-            Console.WriteLine(ModPower(a, b, n));
-
-            Console.ReadKey();
         }
 
         public static string Add(string a, string b) {
@@ -173,6 +160,7 @@ namespace SROMLab1 {
             var b_32 = new ulong[b.Length / 8];
             a_32 = ToArr(a, a_32);
             b_32 = ToArr(b, b_32);
+
             //string Pow_b = Program.UlongToString(b);
             ulong[] C = new ulong[1];
             C[0] = 0x1;
@@ -198,10 +186,41 @@ namespace SROMLab1 {
         }
 
         public static string ModPower(string a, string b, string n) {
-            var c = Power(a, b);
-            var r = Modd(c, n);
-            return r;
+            var Pow_b = b;
+            a = CorrLength(a);
+            b = CorrLength(b);
+            n = CorrLength(n);
+            var a_32 = new ulong[a.Length / 8];
+            var b_32 = new ulong[b.Length / 8];
+            var n_32 = new ulong[n.Length / 8];
+            a_32 = ToArr(a, a_32);
+            b_32 = ToArr(b, b_32);
+            n_32 = ToArr(n, n_32);
+            ulong[] C = new ulong[1];
+            C[0] = 0x1;
+            ulong[][] D = new ulong[16][];
+            D[0] = new ulong[1] { 1 };
+            D[1] = a_32;
+            for (int i = 2; i < 16; i++) {
+                D[i] = Multiply(D[i - 1], a_32);
+                D[i] = RHZ(D[i]);
+            }
+
+            for (int i = 0; i < Pow_b.Length; i++) {
+                C = Multiply(C, D[Convert.ToInt32(Pow_b[i].ToString(), 16)]);
+                C = ToArr((Modd(ToStr(C), n)), C);
+                if (i != Pow_b.Length - 1) {
+                    for (int k = 1; k <= 4; k++) {
+                        C = Multiply(C, C);
+                        C = ToArr((Modd(ToStr(C), n)), C);
+                        C = RHZ(C);
+                    }
+                }
+            }
+            var res = RHZStr(ToStr(C));
+            return res;
         }
+
 
 
         public static string Modd(string a, string b) {
@@ -354,7 +373,6 @@ namespace SROMLab1 {
         }
 
 
-
         public static string RHZStr(string a) {
             var r = a.TrimStart('0');
             //r = 0 + r;
@@ -380,23 +398,21 @@ namespace SROMLab1 {
         }
 
         public static ulong[] ToArr(string a, ulong[] a_32) {
+            a = CorrLength(a);
             var p_32 = new ulong[a.Length / 8];
             for (int i = 0; i < a.Length; i += 8) {
                 p_32[i / 8] = Convert.ToUInt64(a.Substring(i, 8), 16);
-                a_32[i / 8] = p_32[i / 8];
+
             }
             Array.Reverse(a_32);
             Array.Reverse(p_32);
 
-            return a_32;
+            return p_32;
         }
 
-        public static string ToStr(ulong[] a_32) {
-            string result = null;
-            for (int i = 0; i < a_32.Length; i++) {
-                result = (a_32[i].ToString("X").PadLeft(8, '0')) + result;
-            }
-            return result;
+        public static string ToStr(ulong[] a) {
+            string st = string.Concat(a.Select(chunk => chunk.ToString("X").PadLeft(sizeof(ulong), '0')).Reverse()).TrimStart('0');
+            return st;
         }
 
         public static ulong[] Addition(ulong[] a_32, ulong[] b_32) {
